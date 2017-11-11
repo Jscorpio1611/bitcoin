@@ -30,12 +30,14 @@ public:
     UniValue id;
     std::string strMethod;
     UniValue params;
+    UniValue m_params;
+    bool m_used_positional_args;
     bool fHelp;
     std::string URI;
     std::string authUser;
     std::string peerAddr;
 
-    JSONRPCRequest() : id(NullUniValue), params(NullUniValue), fHelp(false) {}
+    JSONRPCRequest() : id(NullUniValue), params(NullUniValue), m_params(NullUniValue), m_used_positional_args(false), fHelp(false) {}
     void parse(const UniValue& valRequest);
 };
 
