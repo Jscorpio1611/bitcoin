@@ -153,6 +153,12 @@ AC_ARG_WITH([qrencode],
   [use_qr=$withval],
   [use_qr=auto])
 
+AC_ARG_WITH([xdg],
+  [AS_HELP_STRING([--without-xdg],
+  [disable installing XDG data (default is yes if GUI is enabled)])],
+  [with_xdg=$withval],
+  [with_xdg=auto])
+
 AC_ARG_ENABLE([hardening],
   [AS_HELP_STRING([--disable-hardening],
   [do not attempt to harden the resulting executables (default is to harden when possible)])],
@@ -1341,6 +1347,10 @@ if test x$bitcoin_enable_qt != xno; then
     fi
   fi
 
+  if test x$with_xdg != xno; then
+    with_xdg=yes
+  fi
+
   if test x$XGETTEXT = x; then
     AC_MSG_WARN("xgettext is required to update qt translations")
   fi
@@ -1368,6 +1378,12 @@ if test x$bitcoin_enable_qt != xno; then
     else
       AC_MSG_RESULT([no])
     fi
+  fi
+else
+  if test x$with_xdg = xyes; then
+    AC_MSG_ERROR([--with-xdg specified, but GUI is not enabled])
+  else
+    with_xdg=no
   fi
 fi
 
@@ -1403,6 +1419,7 @@ AM_CONDITIONAL([ENABLE_QT_TESTS],[test x$BUILD_TEST_QT = xyes])
 AM_CONDITIONAL([ENABLE_BIP70],[test x$enable_bip70 = xyes])
 AM_CONDITIONAL([ENABLE_BENCH],[test x$use_bench = xyes])
 AM_CONDITIONAL([USE_QRCODE], [test x$use_qr = xyes])
+AM_CONDITIONAL([WITH_XDG], [test x$with_xdg = xyes])
 AM_CONDITIONAL([USE_LCOV],[test x$use_lcov = xyes])
 AM_CONDITIONAL([GLIBC_BACK_COMPAT],[test x$use_glibc_compat = xyes])
 AM_CONDITIONAL([HARDEN],[test x$use_hardening = xyes])
