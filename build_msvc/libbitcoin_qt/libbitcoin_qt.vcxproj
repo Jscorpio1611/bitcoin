@@ -328,7 +328,7 @@
     <None Include="..\..\src\qtes\icons\bitcoin.icns">
       <DeploymentContent>true</DeploymentContent>
     </None>
-    <None Include="..\..\src\qtes\src\bitcoin.svg">
+    <None Include="..\..\src\qtes\src\bitcoin128.svg">
       <DeploymentContent>true</DeploymentContent>
     </None>
     <None Include="..\..\src\qtes\src\clock_0.svg">
