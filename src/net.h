@@ -15,6 +15,7 @@
 #include <hash.h>
 #include <limitedmap.h>
 #include <netaddress.h>
+#include <netbase.h>
 #include <net_permissions.h>
 #include <policy/feerate.h>
 #include <protocol.h>
@@ -121,13 +122,6 @@ class NetEventsInterface;
 class CConnman
 {
 public:
-
-    enum NumConnections {
-        CONNECTIONS_NONE = 0,
-        CONNECTIONS_IN = (1U << 0),
-        CONNECTIONS_OUT = (1U << 1),
-        CONNECTIONS_ALL = (CONNECTIONS_IN | CONNECTIONS_OUT),
-    };
 
     struct Options
     {
@@ -276,7 +270,7 @@ public:
     bool RemoveAddedNode(const std::string& node);
     std::vector<AddedNodeInfo> GetAddedNodeInfo();
 
-    size_t GetNodeCount(NumConnections num);
+    size_t GetNodeCount(ConnectionDirection);
     void GetNodeStats(std::vector<CNodeStats>& vstats);
     bool DisconnectNode(const std::string& node);
     bool DisconnectNode(const CSubNet& subnet);

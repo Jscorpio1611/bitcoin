@@ -44,7 +44,7 @@ static UniValue getconnectioncount(const JSONRPCRequest& request)
     if(!g_rpc_node->connman)
         throw JSONRPCError(RPC_CLIENT_P2P_DISABLED, "Error: Peer-to-peer functionality missing or disabled");
 
-    return (int)g_rpc_node->connman->GetNodeCount(CConnman::CONNECTIONS_ALL);
+    return (int)g_rpc_node->connman->GetNodeCount(ConnectionDirection::Both);
 }
 
 static UniValue ping(const JSONRPCRequest& request)
@@ -521,7 +521,7 @@ static UniValue getnetworkinfo(const JSONRPCRequest& request)
     obj.pushKV("timeoffset",    GetTimeOffset());
     if (g_rpc_node->connman) {
         obj.pushKV("networkactive", g_rpc_node->connman->GetNetworkActive());
-        obj.pushKV("connections",   (int)g_rpc_node->connman->GetNodeCount(CConnman::CONNECTIONS_ALL));
+        obj.pushKV("connections",   (int)g_rpc_node->connman->GetNodeCount(ConnectionDirection::Both));
     }
     obj.pushKV("networks",      GetNetworksInfo());
     obj.pushKV("relayfee",      ValueFromAmount(::minRelayTxFee.GetFeePerK()));
