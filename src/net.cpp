@@ -440,12 +440,19 @@ CNode* CConnman::ConnectNode(CAddress addrConnect, const char *pszDest, bool fCo
         return nullptr;
     }
 
+    NetPermissionFlags permission_flags = NetPermissionFlags::PF_NONE;
+    ServiceFlags node_services = nLocalServices;
+    AddWhitelistPermissionFlags(permission_flags, addrConnect, vWhitelistedRangeOutgoing);
+    InitializePermissionFlags(permission_flags, node_services);
+
     // Add node
     NodeId id = GetNewNodeId();
     uint64_t nonce = GetDeterministicRandomizer(RANDOMIZER_ID_LOCALHOSTNONCE).Write(id).Finalize();
     CAddress addr_bind = GetBindAddress(hSocket);
-    CNode* pnode = new CNode(id, nLocalServices, GetBestHeight(), hSocket, addrConnect, CalculateKeyedNetGroup(addrConnect), nonce, addr_bind, pszDest ? pszDest : "", false, block_relay_only);
+    CNode* pnode = new CNode(id, node_services, GetBestHeight(), hSocket, addrConnect, CalculateKeyedNetGroup(addrConnect), nonce, addr_bind, pszDest ? pszDest : "", false, block_relay_only);
     pnode->AddRef();
+
+    pnode->m_permissionFlags = permission_flags;
 
     // We're making a new connection, harvest entropy from the time (and our peer count)
     RandAddEvent((uint32_t)id);
@@ -464,8 +471,8 @@ void CNode::CloseSocketDisconnect()
     }
 }
 
-void CConnman::AddWhitelistPermissionFlags(NetPermissionFlags& flags, const CNetAddr &addr) const {
-    for (const auto& subnet : vWhitelistedRange) {
+void CConnman::AddWhitelistPermissionFlags(NetPermissionFlags& flags, const CNetAddr &addr, const std::vector<NetWhitelistPermissions>& ranges) const {
+    for (const auto& subnet : ranges) {
         if (subnet.m_subnet.Match(addr)) NetPermissions::AddFlag(flags, subnet.m_flags);
     }
 }
@@ -966,7 +973,7 @@ void CConnman::AcceptConnection(const ListenSocket& hListenSocket) {
     NetPermissionFlags permissionFlags = NetPermissionFlags::PF_NONE;
     ServiceFlags nodeServices = nLocalServices;
     hListenSocket.AddSocketPermissionFlags(permissionFlags);
-    AddWhitelistPermissionFlags(permissionFlags, addr);
+    AddWhitelistPermissionFlags(permissionFlags, addr, vWhitelistedRange);
     InitializePermissionFlags(permissionFlags, nodeServices);
 
     {
