@@ -22,6 +22,7 @@ enum NetPermissionFlags
     PF_NOBAN = (1U << 4),
     // Can query the mempool
     PF_MEMPOOL = (1U << 5),
+    // NOTE: When adding here, be sure to update NetPermissions::ToStrings
 
     // True if the user did not specifically set fine grained permissions
     PF_ISIMPLICIT = (1U << 31),

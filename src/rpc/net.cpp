@@ -195,7 +195,7 @@ static UniValue getpeerinfo(const JSONRPCRequest& request)
             }
             obj.pushKV("inflight", heights);
         }
-        obj.pushKV("whitelisted", stats.m_legacyWhitelisted);
+        obj.pushKV("whitelisted", NetPermissions::HasFlag(stats.m_permissionFlags, NetPermissionFlags::PF_ISIMPLICIT));
         UniValue permissions(UniValue::VARR);
         for (const auto& permission : NetPermissions::ToStrings(stats.m_permissionFlags)) {
             permissions.push_back(permission);

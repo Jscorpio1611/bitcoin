@@ -60,6 +60,7 @@ std::vector<std::string> NetPermissions::ToStrings(NetPermissionFlags flags)
     if (NetPermissions::HasFlag(flags, PF_FORCERELAY)) strings.push_back("forcerelay");
     if (NetPermissions::HasFlag(flags, PF_RELAY)) strings.push_back("relay");
     if (NetPermissions::HasFlag(flags, PF_MEMPOOL)) strings.push_back("mempool");
+    // PF_ISIMPLICIT intentionally omitted
     return strings;
 }
 
