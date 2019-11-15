@@ -467,6 +467,7 @@ void SetupServerArgs(NodeContext& node)
 #endif
     gArgs.AddArg("-whitebind=<[permissions@]addr>", "Bind to given address and whitelist peers connecting to it. "
         "Use [host]:port notation for IPv6. Allowed permissions are bloomfilter (allow requesting BIP37 filtered blocks and transactions), "
+        "blockfilters (serve compact block filters to peers per BIP 157), "
         "noban (do not ban for misbehavior), "
         "forcerelay (relay transactions that are already in the mempool; implies relay), "
         "relay (relay even in -blocksonly mode), "
@@ -1907,18 +1908,31 @@ bool AppInitMain(NodeContext& node)
         }
         connOptions.vBinds.push_back(addrBind);
     }
-    for (const std::string& strBind : gArgs.GetArgs("-whitebind")) {
-        NetWhitebindPermissions whitebind;
-        std::string error;
-        if (!NetWhitebindPermissions::TryParse(strBind, whitebind, error)) return InitError(Untranslated(error));
-        connOptions.vWhiteBinds.push_back(whitebind);
-    }
 
-    for (const auto& net : gArgs.GetArgs("-whitelist")) {
-        NetWhitelistPermissions subnet;
-        std::string error;
-        if (!NetWhitelistPermissions::TryParse(net, subnet, error)) return InitError(Untranslated(error));
-        connOptions.vWhitelistedRange.push_back(subnet);
+    {
+        NetPermissionFlags all_permission_flags = PF_NONE;
+
+        for (const std::string& strBind : gArgs.GetArgs("-whitebind")) {
+            NetWhitebindPermissions whitebind;
+            std::string error;
+            if (!NetWhitebindPermissions::TryParse(strBind, whitebind, error)) return InitError(Untranslated(error));
+            NetPermissions::AddFlag(all_permission_flags, whitebind.m_flags);
+            connOptions.vWhiteBinds.push_back(whitebind);
+        }
+
+        for (const auto& net : gArgs.GetArgs("-whitelist")) {
+            NetWhitelistPermissions subnet;
+            std::string error;
+            if (!NetWhitelistPermissions::TryParse(net, subnet, error)) return InitError(Untranslated(error));
+            NetPermissions::AddFlag(all_permission_flags, subnet.m_flags);
+            connOptions.vWhitelistedRange.push_back(subnet);
+        }
+
+        if (NetPermissions::HasFlag(all_permission_flags, PF_BLOCKFILTERS_EXPLICIT)) {
+            if (g_enabled_filter_types.count(BlockFilterType::BASIC) != 1) {
+                return InitError(_("Cannot grant blockfilters permission without -blockfilterindex.").translated);
+            }
+        }
     }
 
     connOptions.vSeedNodes = gArgs.GetArgs("-seednode");

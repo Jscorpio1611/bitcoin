@@ -1026,6 +1026,9 @@ void CConnman::AcceptConnection(const ListenSocket& hListenSocket) {
     if (NetPermissions::HasFlag(permissionFlags, PF_BLOOMFILTER)) {
         nodeServices = static_cast<ServiceFlags>(nodeServices | NODE_BLOOM);
     }
+    if (NetPermissions::HasFlag(permissionFlags, PF_BLOCKFILTERS)) {
+        nodeServices = static_cast<ServiceFlags>(nodeServices | NODE_COMPACT_FILTERS);
+    }
     CNode* pnode = new CNode(id, nodeServices, GetBestHeight(), hSocket, addr, CalculateKeyedNetGroup(addr), nonce, addr_bind, "", true);
     pnode->AddRef();
     pnode->m_permissionFlags = permissionFlags;
