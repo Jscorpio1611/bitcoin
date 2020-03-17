@@ -423,16 +423,13 @@ static inline UniValue transformNamedArguments(const UniValue& in, const std::ve
  */
 static inline UniValue transformPositionalArguments(const UniValue& in, const std::vector<std::string>& argNames)
 {
+    assert(in.size() <= argNames.size());
     UniValue out(UniValue::VOBJ);
     for (size_t i = 0; i < in.size(); ++i) {
         const UniValue &val = in[i];
+        const std::string &argNamePattern = argNames[i];
         std::vector<std::string> vargNames;
-        if (i < argNames.size()) {
-            boost::algorithm::split(vargNames, argNames[i], boost::algorithm::is_any_of("|"));
-        } else {
-            // NOTE: These can't be specified using named args
-            vargNames.push_back(strprintf("arg%s", i));
-        }
+        boost::algorithm::split(vargNames, argNamePattern, boost::algorithm::is_any_of("|"));
         for (const std::string & argName : vargNames) {
             out.pushKV(argName, val);
         }
@@ -450,6 +447,11 @@ static inline JSONRPCRequest transformArguments(const JSONRPCRequest& in, const 
         out.params = transformNamedArguments(in.params, argNames);
     } else {
         out.m_used_positional_args = true;
+        if (in.params.size() > argNames.size()) {
+            // Too many params, so just trigger help
+            out.fHelp = true;
+            return out;
+        }
         out.m_params = transformPositionalArguments(in.params, argNames);
     }
 
