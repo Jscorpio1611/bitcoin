@@ -584,7 +584,7 @@ static UniValue echo(const JSONRPCRequest& request)
             }.ToString()
         );
 
-    CHECK_NONFATAL(request.params.size() != 100);
+    CHECK_NONFATAL((!request.m_params["arg0"].isStr()) || request.m_params["arg0"].get_str() != "Fail CHECK_NONFATAL");
 
     return request.params;
 }

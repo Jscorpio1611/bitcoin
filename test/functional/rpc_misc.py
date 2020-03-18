@@ -27,8 +27,8 @@ class RpcMiscTest(BitcoinTestFramework):
         self.log.info("test CHECK_NONFATAL")
         assert_raises_rpc_error(
             -1,
-            "Internal bug detected: 'request.params.size() != 100'",
-            lambda: node.echo(*[0] * 100),
+            "Internal bug detected",
+            lambda: node.echo('Fail CHECK_NONFATAL'),
         )
 
         self.log.info("test getmemoryinfo")
