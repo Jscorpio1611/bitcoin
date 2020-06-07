@@ -10,6 +10,7 @@
 #define BITCOIN_NET_PERMISSIONS_H
 enum NetPermissionFlags
 {
+    // NOTE: When adding here, be sure to update net_permissions.cpp's NetPermissions::ToStrings too
     PF_NONE = 0,
     // Can query bloomfilter even if -peerbloomfilters is false
     PF_BLOOMFILTER = (1U << 1),
